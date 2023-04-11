@@ -1,8 +1,5 @@
-
-var Emitter = require('emitter');
-var debug = require('debug')('gameboy');
-
-module.exports = GameBoyCore;
+import EventEmitter from 'eventemitter3';
+const debug = (a, b) => console.log(a, b)
 
 /*
  * JavaScript GameBoy Color Emulator
@@ -19,8 +16,19 @@ module.exports = GameBoyCore;
  * GNU General Public License for more details.
  *
  */
-function GameBoyCore(canvas, ROMImage, opts) {
+export default function GameBoyCore(canvas, ROMImage, opts) {
   if (!(this instanceof GameBoyCore)) return new GameBoyCore(canvas, ROMImage, opts);
+
+  const emitter = new EventEmitter()
+
+  this._events = emitter._events;
+  this.emit = emitter.emit;
+  this.on = emitter.on;
+  this.off = emitter.off;
+  // ['on', 'off', 'emit'].forEach((method) => {
+  //   console.log("method=", method)
+  //   this[method] = emitter[method]
+  // })
 
   opts = opts || {};
   this.opts = {};
@@ -39,7 +47,7 @@ function GameBoyCore(canvas, ROMImage, opts) {
   this.opts.overrideMbc = !!opts.overrideMbc;
   this.opts.canvas = opts.canvas;
   this.opts.channels = opts.channels || [true, true, true, true];
-  this.opts.drawEvents = !!opts.drawEvents;
+  this.opts.drawEvents = false !== opts.drawEvents;
 
   //Params, etc...
   this.canvas = canvas;           //Canvas DOM object for drawing out the graphics to.
@@ -299,8 +307,6 @@ function GameBoyCore(canvas, ROMImage, opts) {
   //Initialize the white noise cache tables ahead of time:
   this.intializeWhiteNoise();
 }
-
-Emitter(GameBoyCore.prototype);
 
 GameBoyCore.prototype.GBBOOTROM = [   //GB BOOT ROM
   //Add 256 byte boot rom here if you are going to use it.
